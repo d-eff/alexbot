@@ -1,5 +1,6 @@
+var config = require('./config');
 var Hipchatter = require('hipchatter');
-var hipchatter = new Hipchatter('4mtwWT7foXAyd2Z5rLdoNxWEQRFqITom2H76wura');
+var hipchatter = new Hipchatter(config.hipchatKey);
 
 var http = require('http');
 var express = require('express');
@@ -40,7 +41,7 @@ app.post('/', function(req, res) {
     hipchatter.notify('FE Learning Center', {
         message: 'Test',
         color: 'red',
-        token: '4bOsiwkvfPLHqU9qZ8bL7w724skGHTvGMLelUnqd',
+        token: config.roomKey,
     }, function(err) {
         if(!err) {
             console.log("notified");
