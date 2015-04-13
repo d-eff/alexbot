@@ -6,21 +6,10 @@ var http = require('http');
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
-hipchatter.webhooks('FE Learning Center', function(err, hooks) {
-	if(!err) {
-	console.log(hooks);
-}
-}); 
-/*hipchatter.delete_webhook('FE Learning Center', '887852', function(err) {
-if(!err) {
-	console.log('success');
-}
-});
-*/
 app.use(bodyParser.json()); 
 
-/*hipchatter.create_webhook('FE Learning Center', {
-    url: 'http://146.148.78.8:3000/',
+updateWebhook('FE Learning Center', {
+    url: 'http://146.148.78.8:3000/alex',
     pattern: '(stepping away for a bit)', 
     event: 'room_message',
     name: 'step_away',
@@ -31,17 +20,37 @@ app.use(bodyParser.json());
 	console.log(err);
 }
 });
-*/
+
 app.get('/', function(req, res) {
 	res.send('ok');
 });
 
-app.post('/', function(req, res) {
-    console.log(req);
-    hipchatter.notify('FE Learning Center', {
-        message: 'Test',
+app.post('/alex', function(req, res) {
+	var person = req.body.item.message.from.id,
+	roomKey = 000;
+	if(person === 201533 || person === 814860) {
+	switch(req.body.item.room.id) {
+		//fe learning center for testing
+		case 1170122:
+			roomKey = config.FERoom;	
+		break;
+		//NEXT
+		case 214295:
+			roomKey = config.NEXTRoom;
+		break;
+		//hcw
+		case 215089:
+			roomKey = config.HCWRoom;
+		break;
+		//qa
+		case 364003:
+			roomKey = config.QARoom;
+		break;
+	}
+    hipchatter.notify(req.body.item.room.id, {
+        message: '<strong>Attention</strong><br>Alex is stepping away from his desk for a bit. Don\'t panic. Please sit calmly at your desk with your hands folded until he returns.',
         color: 'red',
-        token: config.roomKey,
+        token: roomKey,
     }, function(err) {
         if(!err) {
             console.log("notified");
@@ -49,8 +58,28 @@ app.post('/', function(req, res) {
 		console.log(err);
 	}
     });
-    res.json(req.body);
+}
+    res.send("ok");
 });
+
+function updateWebhook(roomName, options, callback) {
+	hipchatter.webhooks('FE Learning Center', function(err, hooks) {
+		if(!err) {
+			console.log(hooks);
+			hooks.items.forEach(function(ele, ind, arr) {
+				if(ele.name === options.name) {
+					hipchatter.delete_webhook(roomName, ele.id, function(err) {
+						if(!err) {
+							console.log('deleted duplicate webhook with id' + ele.id);
+						}
+					});
+				}
+			});
+			hipchatter.create_webhook(roomName, options, callback);
+		}
+	}); 
+}
+
 
 app.listen(3000, function() {
     console.log('running');
