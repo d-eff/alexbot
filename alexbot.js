@@ -8,57 +8,41 @@ var bodyParser = require('body-parser');
 var app = express();
 app.use(bodyParser.json()); 
 
-updateWebhook('FE Learning Center', {
-    url: 'http://146.148.78.8:3000/alex',
-    pattern: '(stepping away for a bit)', 
-    event: 'room_message',
-    name: 'step_away',
-}, function(err, webhook) {
-    if(!err) {
-        console.log(webhook);
-    } else {
-	console.log(err);
+for(var room in config.rooms) {
+    updateWebhook(room, {
+	    url: 'http://146.148.78.8:3000/alex',
+	    pattern: '(stepping away for a bit)', 
+	    event: 'room_message',
+	    name: 'step_away',
+	}, function(err, webhook) {
+	    if(!err) {
+		console.log(webhook);
+	    } else {
+		console.log(err);
+	}
+    });	
 }
-});
-
-app.get('/', function(req, res) {
-	res.send('ok');
-});
 
 app.post('/alex', function(req, res) {
 	var person = req.body.item.message.from.id,
 	roomKey = 000;
 	if(person === 201533 || person === 814860) {
-	switch(req.body.item.room.id) {
-		//fe learning center for testing
-		case 1170122:
-			roomKey = config.FERoom;	
-		break;
-		//NEXT
-		case 214295:
-			roomKey = config.NEXTRoom;
-		break;
-		//hcw
-		case 215089:
-			roomKey = config.HCWRoom;
-		break;
-		//qa
-		case 364003:
-			roomKey = config.QARoom;
-		break;
+	    roomKey = 000 || config.rooms[req.body.item.room.id];
+		   
+	    console.log(new Date().toString() + ": notified in room " + req.body.item.room.id + " with key " + roomKey);
+
+	    hipchatter.notify(req.body.item.room.id, {
+		message: '<strong>Attention</strong><br>Alex is stepping away from his desk for a bit. Don\'t panic. Please sit calmly at your desk with your hands folded until he returns.',
+		color: 'red',
+		token: roomKey,
+	    }, function(err) {
+		if(!err) {
+		    console.log(new Date().toString() + ": notified in room " + req.body.item.room.id + " with key " + roomKey);
+		} else {
+			console.log(err);
+		}
+	    });
 	}
-    hipchatter.notify(req.body.item.room.id, {
-        message: '<strong>Attention</strong><br>Alex is stepping away from his desk for a bit. Don\'t panic. Please sit calmly at your desk with your hands folded until he returns.',
-        color: 'red',
-        token: roomKey,
-    }, function(err) {
-        if(!err) {
-            console.log("notified");
-        } else {
-		console.log(err);
-	}
-    });
-}
     res.send("ok");
 });
 
