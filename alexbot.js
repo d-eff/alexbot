@@ -16,6 +16,12 @@ for(var room in config.rooms) {
 	    name: 'step_away',
 	});	
     updateWebhook(room, {
+	    url: 'http://146.148.78.8:3000/alex',
+	    pattern: '(alex)', 
+	    event: 'room_message',
+	    name: 'alex',
+	});	
+    updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/test',
 	    pattern: '(test)', 
 	    event: 'room_message',
@@ -45,11 +51,24 @@ app.post('/away', function(req, res) {
 	}
     res.send("ok");
 });
+app.post('/alex', function(req, res) {
+	hipchatter.reply(req.body.item.room.id, {
+	    parentMessageId: req.body.item.message.id,
+	    message: 'test'
+	}, function(err) {
+	    if(!err) {
+
+	    } else {
+		console.log(err);
+	    }
+	});
+    res.send("ok");
+});
 app.post('/test', function(req, res) {
 	var person = req.body.item.message.from.id,
 	roomKey = 000;
 	if(person === 201533 || person === 814860) {
-        console.log(req.body);
+        console.log(req.body.item.message.from);
 	}
     res.send("ok");
 });
