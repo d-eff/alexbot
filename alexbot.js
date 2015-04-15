@@ -14,25 +14,13 @@ for(var room in config.rooms) {
 	    pattern: '(stepping away)', 
 	    event: 'room_message',
 	    name: 'step_away',
-	}, function(err, webhook) {
-	    if(!err) {
-		console.log(webhook);
-	    } else {
-		console.log(err);
-	}
-    });	
+	});	
     updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/test',
-	    pattern: '(stepping away)', 
+	    pattern: '(test)', 
 	    event: 'room_message',
 	    name: 'test',
-	}, function(err, webhook) {
-	    if(!err) {
-		console.log(webhook);
-	    } else {
-		console.log(err);
-	}
-    });	
+	});	
 }
 
 app.post('/away', function(req, res) {
@@ -66,20 +54,25 @@ app.post('/test', function(req, res) {
     res.send("ok");
 });
 
-function updateWebhook(roomName, options, callback) {
+function updateWebhook(roomName, options) {
 	hipchatter.webhooks(roomName, function(err, hooks) {
 		if(!err) {
-			console.log(hooks);
 			hooks.items.forEach(function(ele, ind, arr) {
 				if(ele.name === options.name) {
 					hipchatter.delete_webhook(roomName, ele.id, function(err) {
 						if(!err) {
-							console.log('deleted duplicate webhook with id' + ele.id);
+							console.log('deleted duplicate webhook ' + ele.name + ' ' + ele.id);
 						}
 					});
 				}
 			});
-			hipchatter.create_webhook(roomName, options, callback);
+			hipchatter.create_webhook(roomName, options, function(err, webhook) {
+		    	    if(!err) {
+			        console.log('registered webhook ' + options.name + ' ' + webhook.id + ' for room ' + roomName);
+		            } else {
+			        console.log(err);
+		            }
+			});
 		}
 	}); 
 }
