@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 for(var room in config.rooms) {
     updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/alex',
-	    pattern: '(stepping away for a bit)', 
+	    pattern: '(stepping away)', 
 	    event: 'room_message',
 	    name: 'step_away',
 	}, function(err, webhook) {
@@ -32,7 +32,7 @@ app.post('/alex', function(req, res) {
 	    console.log(new Date().toString() + ": notified in room " + req.body.item.room.id + " with key " + roomKey);
 
 	    hipchatter.notify(req.body.item.room.id, {
-		message: '<strong>Attention</strong><br>Alex is stepping away from his desk for a bit. Don\'t panic. Please sit calmly at your desk with your hands folded until he returns.',
+		message: '<strong>Attention</strong><br>Alex is stepping away from his desk for a bit. Don\'t panic, he can\'t even outsmart a bot. Please sit calmly at your desk with your hands folded until he returns.',
 		color: 'red',
 		token: roomKey,
 	    }, function(err) {
