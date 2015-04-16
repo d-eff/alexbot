@@ -15,19 +15,18 @@ for(var room in config.rooms) {
 	    event: 'room_message',
 	    name: 'step_away',
 	}, true);	
-    updateWebhook(room, {
+  */  updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/alex',
 	    pattern: '(DavidF)', 
 	    event: 'room_message',
 	    name: 'alex',
-	}, true);	
-  */  updateWebhook(room, {
+	});	
+    updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/test',
-	    pattern: '(test)', 
+	    pattern: '(deploy)(ment|ing|)', 
 	    event: 'room_message',
 	    name: 'test',
-	});	
-
+	}, true);	
 }
 
 app.post('/away', function(req, res) {
@@ -53,16 +52,16 @@ app.post('/away', function(req, res) {
     res.send("ok");
 });
 app.post('/alex', function(req, res) {
-	hipchatter.reply(req.body.item.room.id, {
-	    parentMessageId: req.body.item.message.id,
-	    message: ''
-	}, function(err) {
-	    if(!err) {
-
-	    } else {
-		console.log(err);
-	    }
-	});
+    if(req.body.item.message.from.id !== 2007583) {
+        hipchatter.reply(req.body.item.room.id, {
+            parentMessageId: req.body.item.message.id,
+            message: messageGen(req.body.item.message.from.mention_name)
+        }, function(err) {
+            if(err) {
+                console.log(err);
+            }
+        });
+    }
     res.send("ok");
 });
 app.post('/test', function(req, res) {
@@ -103,15 +102,16 @@ function updateWebhook(roomName, options, overWriteHook) {
 	}); 
 }
 
-function messageGen() {
+function messageGen(name) {
     var suffix = [
         'Bananalord Ecuadorus',
         'Emperor Clownicus I, Lord of the Circus',
-        'Turd Ferguson',
-        'http://yoursmiles.org/tsmile/banana/t0233.gif',
-        
+        'Donkey Kong',
+        '(banana)',
+        '(alex)',
+        'The Clocklord, Master of Time Zones'
     ]
-    return "It appears you typed \'@AlexDillon.\' Perhaps you meant ' + suffix
+    return "@" + name + " it appears you typed \'@AlexDillon.\' Perhaps you meant \'" + suffix[Math.floor(Math.random()*suffix.length)] + "?\'";
 }
 
 
