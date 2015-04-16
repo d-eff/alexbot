@@ -9,24 +9,36 @@ var app = express();
 app.use(bodyParser.json()); 
 
 for(var room in config.rooms) {
-/*    updateWebhook(room, {
+    updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/away',
 	    pattern: '(stepping away)', 
 	    event: 'room_message',
 	    name: 'step_away',
-	}, true);	
-  */  updateWebhook(room, {
+	});	
+    updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/alex',
 	    pattern: '(DavidF)', 
 	    event: 'room_message',
 	    name: 'alex',
 	});	
     updateWebhook(room, {
-	    url: 'http://146.148.78.8:3000/test',
+	    url: 'http://146.148.78.8:3000/deploy',
 	    pattern: '(deploy)(ment|ing|)', 
 	    event: 'room_message',
-	    name: 'test',
+	    name: 'deploy',
 	}, true);	
+    updateWebhook(room, {
+	    url: 'http://146.148.78.8:3000/object',
+	    pattern: '(objection|object)', 
+	    event: 'room_message',
+	    name: 'object',
+	}, true);	
+    updateWebhook(room, {
+	    url: 'http://146.148.78.8:3000/test',
+	    pattern: '(test)', 
+	    event: 'room_message',
+	    name: 'test',
+	});	
 }
 
 app.post('/away', function(req, res) {
@@ -49,8 +61,10 @@ app.post('/away', function(req, res) {
 			}
 	    });
 	}
-    res.send("ok");
+    res.status(204).end();
 });
+
+
 app.post('/alex', function(req, res) {
     if(req.body.item.message.from.id !== 2007583) {
         hipchatter.reply(req.body.item.room.id, {
@@ -62,17 +76,55 @@ app.post('/alex', function(req, res) {
             }
         });
     }
-    res.send("ok");
-});
-app.post('/test', function(req, res) {
-	var person = req.body.item.message.from.id,
-	roomKey = 000;
-	if(person === 201533 || person === 814860) {
-        console.log(req.body.item.message.from);
-	}
-    res.send("ok");
+    res.status(204).end();
 });
 
+
+app.post('/deploy', function(req, res) {
+	var person = req.body.item.message.from.id,
+        re = /object|objection/;
+
+	if((person === 201533 || person === 814860) && !re.test(req.body.item.message.message)) {
+        hipchatter.reply(req.body.item.room.id, {
+            parentMessageId: req.body.item.message.id,
+            message: "@AlexDillon did you say something about deploying? http://i.imgur.com/qDPGE2E.jpg", 
+        }, function(err) {
+            if(err) {
+                console.log(err);
+            }
+        });
+    }
+    res.status(204).end();
+});
+
+
+app.post('/object', function(req, res) {
+	var person = req.body.item.message.from.id;
+
+	if(person === 201533 || person === 814860) {
+        hipchatter.reply(req.body.item.room.id, {
+            parentMessageId: req.body.item.message.id,
+            message: "http://i.imgur.com/A5EMP5z.gif?1",
+        }, function(err) {
+            if(err) {
+                console.log(err);
+            }
+        });
+    }
+    res.status(204).end();
+});
+
+
+app.post('/test', function(req, res) {
+	var person = req.body.item.message.from.id;
+	if(person === 201533 || person === 814860) {
+        console.log(req.body.item);
+	}
+    res.status(204).end();
+});
+
+
+//Utils
 function updateWebhook(roomName, options, overWriteHook) {
     var found = false;
 	hipchatter.webhooks(roomName, function(err, hooks) {
