@@ -17,22 +17,22 @@ for(var room in config.rooms) {
 	});	
     updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/alex',
-	    pattern: '(DavidF)', 
+	    pattern: '(AlexDillon)', 
 	    event: 'room_message',
 	    name: 'alex',
-	});	
+	}, true);	
     updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/deploy',
 	    pattern: '(deploy)(ment|ing|)', 
 	    event: 'room_message',
 	    name: 'deploy',
-	}, true);	
+	});	
     updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/object',
 	    pattern: '(objection|object)', 
 	    event: 'room_message',
 	    name: 'object',
-	}, true);	
+	});	
     updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/test',
 	    pattern: '(test)', 
