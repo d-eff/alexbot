@@ -9,24 +9,25 @@ var app = express();
 app.use(bodyParser.json()); 
 
 for(var room in config.rooms) {
-    updateWebhook(room, {
+/*    updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/away',
 	    pattern: '(stepping away)', 
 	    event: 'room_message',
 	    name: 'step_away',
-	});	
+	}, true);	
     updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/alex',
-	    pattern: '(alex)', 
+	    pattern: '(DavidF)', 
 	    event: 'room_message',
 	    name: 'alex',
-	});	
-    updateWebhook(room, {
+	}, true);	
+  */  updateWebhook(room, {
 	    url: 'http://146.148.78.8:3000/test',
 	    pattern: '(test)', 
 	    event: 'room_message',
 	    name: 'test',
 	});	
+
 }
 
 app.post('/away', function(req, res) {
@@ -38,15 +39,15 @@ app.post('/away', function(req, res) {
 	    console.log(new Date().toString() + ": notified in room " + req.body.item.room.id + " with key " + roomKey);
 
 	    hipchatter.notify(req.body.item.room.id, {
-		message: '<strong>Attention</strong><br>Alex is stepping away from his desk for a bit. Don\'t panic, he can\'t even outsmart a bot. Please sit calmly at your desk with your hands folded until he returns.',
-		color: 'red',
-		token: roomKey,
-	    }, function(err) {
-		if(!err) {
-		    console.log(new Date().toString() + ": notified in room " + req.body.item.room.id + " with key " + roomKey);
-		} else {
-			console.log(err);
-		}
+			message: '<strong>Attention</strong><br>Alex is stepping away from his desk for a bit. Don\'t panic, he can\'t even outsmart a bot. Please sit calmly at your desk with your hands folded until he returns.',
+			color: 'red',
+			token: roomKey,
+			}, function(err) {
+			if(!err) {
+				console.log(new Date().toString() + ": notified in room " + req.body.item.room.id + " with key " + roomKey);
+			} else {
+				console.log(err);
+			}
 	    });
 	}
     res.send("ok");
@@ -54,7 +55,7 @@ app.post('/away', function(req, res) {
 app.post('/alex', function(req, res) {
 	hipchatter.reply(req.body.item.room.id, {
 	    parentMessageId: req.body.item.message.id,
-	    message: 'test'
+	    message: ''
 	}, function(err) {
 	    if(!err) {
 
@@ -73,27 +74,44 @@ app.post('/test', function(req, res) {
     res.send("ok");
 });
 
-function updateWebhook(roomName, options) {
+function updateWebhook(roomName, options, overWriteHook) {
+    var found = false;
 	hipchatter.webhooks(roomName, function(err, hooks) {
-		if(!err) {
-			hooks.items.forEach(function(ele, ind, arr) {
+	    if(!err) {
+		    hooks.items.forEach(function(ele, ind, arr) {
 				if(ele.name === options.name) {
-					hipchatter.delete_webhook(roomName, ele.id, function(err) {
-						if(!err) {
-							console.log('deleted duplicate webhook ' + ele.name + ' ' + ele.id);
-						}
-					});
+                    found = true;
+                    if(overWriteHook) {
+                        hipchatter.delete_webhook(roomName, ele.id, function(err) {
+                            if(!err) {
+                                console.log('deleted duplicate webhook ' + ele.name + ' ' + ele.id);
+                            }
+                        });
+                    }
 				}
 			});
-			hipchatter.create_webhook(roomName, options, function(err, webhook) {
-		    	    if(!err) {
-			        console.log('registered webhook ' + options.name + ' ' + webhook.id + ' for room ' + roomName);
-		            } else {
-			        console.log(err);
-		            }
-			});
+		    if(overWriteHook || !found) {
+				hipchatter.create_webhook(roomName, options, function(err, webhook) {
+					if(!err) {
+						console.log('registered webhook ' + options.name + ' ' + webhook.id + ' for room ' + roomName);
+					} else {
+						console.log(err);
+					}
+				});
+			}
 		}
 	}); 
+}
+
+function messageGen() {
+    var suffix = [
+        'Bananalord Ecuadorus',
+        'Emperor Clownicus I, Lord of the Circus',
+        'Turd Ferguson',
+        'http://yoursmiles.org/tsmile/banana/t0233.gif',
+        
+    ]
+    return "It appears you typed \'@AlexDillon.\' Perhaps you meant ' + suffix
 }
 
 
