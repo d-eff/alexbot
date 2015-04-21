@@ -8,33 +8,37 @@ var bodyParser = require('body-parser');
 var app = express();
 app.use(bodyParser.json()); 
 
+var PORT = 3000;
+var EXT_IP = 146.148.78.8;
+var URL = 'http://' + EXT_IP + ':' + PORT;
+
 for(var room in config.rooms) {
     updateWebhook(room, {
-	    url: 'http://146.148.78.8:3000/away',
+	    url: URL + '/away',
 	    pattern: '(stepping away)', 
 	    event: 'room_message',
 	    name: 'step_away',
 	});	
     updateWebhook(room, {
-	    url: 'http://146.148.78.8:3000/alex',
+	    url: URL + '/alex',
 	    pattern: '(AlexDillon)', 
 	    event: 'room_message',
 	    name: 'alex',
-	}, true);	
+	});	
     updateWebhook(room, {
-	    url: 'http://146.148.78.8:3000/deploy',
+	    url: URL + '/deploy',
 	    pattern: '(deploy)(ment|ing|)', 
 	    event: 'room_message',
 	    name: 'deploy',
 	});	
     updateWebhook(room, {
-	    url: 'http://146.148.78.8:3000/object',
+	    url: URL + '/object',
 	    pattern: '(objection|object)', 
 	    event: 'room_message',
 	    name: 'object',
 	});	
     updateWebhook(room, {
-	    url: 'http://146.148.78.8:3000/test',
+	    url: URL + '/test',
 	    pattern: '(test)', 
 	    event: 'room_message',
 	    name: 'test',
@@ -66,10 +70,11 @@ app.post('/away', function(req, res) {
 
 
 app.post('/alex', function(req, res) {
-    if(req.body.item.message.from.id !== 2007583) {
+    //ignore when the bot says it, or we'll be in an infinite loop
+    if(req.body.item.message.from.id !== 2007583 && Math.random() < 0.2) {
         hipchatter.reply(req.body.item.room.id, {
             parentMessageId: req.body.item.message.id,
-            message: messageGen(req.body.item.message.from.mention_name)
+            message: getNameMessage(req.body.item.message.from.mention_name)
         }, function(err) {
             if(err) {
                 console.log(err);
@@ -87,7 +92,7 @@ app.post('/deploy', function(req, res) {
 	if((person === 201533 || person === 814860) && !re.test(req.body.item.message.message)) {
         hipchatter.reply(req.body.item.room.id, {
             parentMessageId: req.body.item.message.id,
-            message: "@AlexDillon did you say something about deploying? http://i.imgur.com/qDPGE2E.jpg", 
+            message: getDeployMessage(), 
         }, function(err) {
             if(err) {
                 console.log(err);
@@ -154,7 +159,21 @@ function updateWebhook(roomName, options, overWriteHook) {
 	}); 
 }
 
-function messageGen(name) {
+function getDeployMessage() {
+    var gifs = [
+        "http://i.imgur.com/qDPGE2E.jpg", //hold on 
+        "http://i.giphy.com/QdgaN60imgrF6.gif", //elephants
+        "http://i.giphy.com/ZsyQWaKusYlgI.gif", //truck
+        "http://i.giphy.com/AWQyGGt1cOFt6.gif", //cat beanbag 
+        "http://i.giphy.com/6zvDSUtuMqp3O.gif", //umbrella
+        "http://buzzworthy.mtv.com//wp-content/uploads/buzz/2013/10/tumblr_mitvsiEBON1s6sejso1_400.gif" //pizza cat
+    ];
+    
+    return "@AlexDillon did you say something about deploying? " + gifs[Math.floor(Math.random()*gifs.length)], 
+
+}
+
+function getNameMessage(name) {
     var suffix = [
         'Bananalord Ecuadorus',
         'Emperor Clownicus I, Lord of the Circus',
@@ -167,6 +186,6 @@ function messageGen(name) {
 }
 
 
-app.listen(3000, function() {
-    console.log('running');
+app.listen(PORT, function() {
+    console.log('Alexbot running on port ' + PORT);
 });
